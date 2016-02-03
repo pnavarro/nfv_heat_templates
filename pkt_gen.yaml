@@ -1,0 +1,136 @@
+heat_template_version: 2013-05-23
+
+description: >
+  HOT template to deploy two servers into an existing neutron tenant network and
+  assign floating IP addresses to each server so they are routable from the
+  public network.
+
+parameters:
+  key_name:
+    type: string
+    description: Name of keypair to assign to servers
+  image:
+    type: string
+    description: Name of image to use for servers
+  flavor:
+    type: string
+    description: Flavor to use for servers
+  dns_server:
+    type: string
+    default: '8.8.8.8'
+  instance_name:
+    type: string
+    description: Name of instance
+  public_net_id:
+    type: string
+    description: >
+      ID of public network for which floating IP addresses will be allocated
+  private_net_id:
+    type: string
+    description: ID of private network into which servers get deployed
+  private_subnet_id:
+    type: string
+    description: ID of private sub network into which servers get deployed
+  sriov_net_id:
+    type: string
+    description: ID of sriov network into which servers get deployed
+  sriov_subnet_id:
+    type: string
+    description: ID of sriov sub network into which servers get deployed
+
+resources:
+  server1:
+    type: OS::Nova::Server
+    properties:
+      name: { get_param: instance_name }
+      image: { get_param: image }
+      flavor: { get_param: flavor }
+      key_name: { get_param: key_name }
+      networks:
+        - port: { get_resource: server1_port }
+        - port: { get_resource: server1_sriov_1_port }
+        - port: { get_resource: server1_sriov_2_port }
+      user_data:
+        str_replace:
+          template: |
+            #!/bin/bash
+            setenforce 0
+            echo 'nameserver dns_server'>> /etc/resolv.conf
+            yum -y groupinstall "Development Tools"
+            yum -y install -y pciutils wget git cmake libpcap-devel
+            rm -f /lib/modules/3.10.0-327.el7.x86_64/build
+            ln -s /usr/src/kernels/3.10.0-327.4.5.el7.x86_64 /lib/modules/3.10.0-327.el7.x86_64/build
+            wget http://dpdk.org/browse/dpdk/snapshot/dpdk-2.2.0.tar.gz -P /root/.
+            wget http://dpdk.org/browse/apps/pktgen-dpdk/snapshot/pktgen-2.9.8.tar.gz -P /root/.
+            cd /root
+            tar -xvzf dpdk-2.2.0.tar.gz
+            tar -xvzf pktgen-2.9.8.tar.gz
+            export RTE_TARGET=x86_64-native-linuxapp-gcc
+            export RTE_SDK=/root/dpdk-2.2.0/
+            export PKT_GEN=/root/pktgen-2.9.8
+            export RTE_TARGET=x86_64-native-linuxapp-gcc
+            cd $RTE_SDK
+            make install T=x86_64-native-linuxapp-gcc
+            mkdir -p /mnt/huge
+            mount -t hugetlbfs nodev /mnt/huge
+            echo 256 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
+            cd $PKT_GEN/
+            make
+            cd $PKT_GEN/app
+            make
+            cd $PKT_GEN
+          params:
+            dns_server: { get_param: dns_server }
+
+  server1_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_param: private_net_id }
+      fixed_ips:
+        - subnet_id: { get_param: private_subnet_id }
+      security_groups: [{ get_resource: server_security_group }]
+
+  server1_sriov_1_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_param: sriov_net_id }
+      fixed_ips:
+        - subnet_id: { get_param: sriov_subnet_id }
+      security_groups: [{ get_resource: server_security_group }]
+      binding:vnic_type: 'direct'
+
+  server1_sriov_2_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_param: sriov_net_id }
+      fixed_ips:
+        - subnet_id: { get_param: sriov_subnet_id }
+      security_groups: [{ get_resource: server_security_group }]
+      binding:vnic_type: 'direct'
+
+  server1_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network_id: { get_param: public_net_id }
+      port_id: { get_resource: server1_port }
+
+  server_security_group:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      description: Add security group rules for server
+      name: security-group
+      rules:
+        - remote_ip_prefix: 0.0.0.0/0
+          protocol: tcp
+          port_range_min: 22
+          port_range_max: 22
+        - remote_ip_prefix: 0.0.0.0/0
+          protocol: icmp
+
+outputs:
+  server1_private_ip:
+    description: IP address of server1 in private network
+    value: { get_attr: [ server1, first_address ] }
+  server1_public_ip:
+    description: Floating IP address of server1 in public network
+    value: { get_attr: [ server1_floating_ip, floating_ip_address ] }
