@@ -31,20 +31,21 @@ parameters:
   private_subnet:
     type: string
     description: ID of private sub network into which servers get deployed
-  sriov_net:
-    type: string
-    description: ID of sriov network into which servers get deployed
-  sriov_subnet:
-    type: string
-    description: ID of sriov sub network into which servers get deployed
-  sriov_net_2:
-    type: string
-    description: ID of sriov network into which servers get deployed
-  sriov_subnet_2:
-    type: string
-    description: ID of sriov sub network into which servers get deployed
 
 resources:
+  physnet_sriov:
+    type: OS::Neutron::ProviderNet
+    properties:
+      name: 'sriov_net_hello_world'
+      network_type: 'vlan'
+      segmentation_id: { get_param: vlan_segmentation_id }
+      physical_network: 'physnet_sriov'
+  physnet_sriov_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      name: 'sriov_subnet_hello_world'
+      network_id: { get_resource: physnet_sriov }
+      cidr: '10.0.4.0/24'
   server1:
     type: OS::Nova::Server
     properties:
@@ -69,16 +70,9 @@ resources:
             wget http://dpdk.org/browse/dpdk/snapshot/dpdk-2.2.0.tar.gz -P /root/.
             cd /root
             tar -xvzf dpdk-2.2.0.tar.gz
-            export RTE_SDK=/root/dpdk-2.2.0/
-            export RTE_TARGET=x86_64-native-linuxapp-gcc
-            cd $RTE_SDK
-            make install T=x86_64-native-linuxapp-gcc
-            mkdir -p /mnt/huge
-            mount -t hugetlbfs nodev /mnt/huge
-            echo 256 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
+            ln -s dpdk-2.2.0 dpdk
           params:
             dns_server: { get_param: dns_server }
-
 
   server1_port:
     type: OS::Neutron::Port
@@ -91,18 +85,18 @@ resources:
   server1_sriov_1_port:
     type: OS::Neutron::Port
     properties:
-      network: { get_param: sriov_net }
+      network: { get_resource: physnet_sriov }
       fixed_ips:
-        - subnet: { get_param: sriov_subnet }
+        - subnet: { get_resource: physnet_sriov_subnet }
       security_groups: [{ get_resource: server_security_group }]
       binding:vnic_type: 'direct'
 
   server1_sriov_2_port:
     type: OS::Neutron::Port
     properties:
-      network: { get_param: sriov_net_2 }
+      network: { get_resource: physnet_sriov }
       fixed_ips:
-        - subnet: { get_param: sriov_subnet_2 }
+        - subnet: { get_resource: physnet_sriov_subnet }
       security_groups: [{ get_resource: server_security_group }]
       binding:vnic_type: 'direct'
 

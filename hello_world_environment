@@ -1,10 +1,8 @@
 parameters:
-  key_name: root_key
+  key_name: rhel-key
   image: centos7
   flavor: m1.medium.nfv
   public_net: 'public'
   private_net: 'private'
   private_subnet: 'private_subnet'
-  sriov_net: 'sriov_net'
-  sriov_subnet: 'sriov_subnet'
   instance_name: 'hello_world_dpdk'

@@ -128,9 +128,9 @@ resources:
           protocol: icmp
 
 outputs:
-  server1_private_ip:
-    description: IP address of server1 in private network
-    value: { get_attr: [ server1, first_address ] }
-  server1_public_ip:
-    description: Floating IP address of server1 in public network
-    value: { get_attr: [ server1_floating_ip, floating_ip_address ] }
+  transmitter_port_MAC:
+    description: the MAC of the transmitter
+    value: { get_attr: [ server1_sriov_1_port, mac_address ] }
+  receiver_port_MAC:
+    description: the MAC of the receiver port
+    value: { get_attr: [ server1_sriov_2_port, mac_address ] }
