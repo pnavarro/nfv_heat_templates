@@ -31,18 +31,18 @@ parameters:
   private_subnet_id:
     type: string
     description: ID of private sub network into which servers get deployed
-  sriov_net_id:
+  sriov_net:
     type: string
-    description: ID of sriov network into which servers get deployed
-  sriov_subnet_id:
+    description: name of sriov network into which servers get deployed
+  sriov_subnet:
     type: string
-    description: ID of sriov sub network into which servers get deployed
-  sriov_net_id_2:
+    description: name of sriov sub network into which servers get deployed
+  sriov_net_2:
     type: string
-    description: ID of sriov network into which servers get deployed
-  sriov_subnet_id_2:
+    description: name of sriov network into which servers get deployed
+  sriov_subnet_2:
     type: string
-    description: ID of sriov sub network into which servers get deployed
+    description: name of sriov sub network into which servers get deployed
 
 resources:
   server1:
@@ -83,26 +83,26 @@ resources:
   server1_port:
     type: OS::Neutron::Port
     properties:
-      network_id: { get_param: private_net_id }
+      network: { get_param: private_net }
       fixed_ips:
-        - subnet_id: { get_param: private_subnet_id }
+        - subnet: { get_param: private_subnet }
       security_groups: [{ get_resource: server_security_group }]
 
   server1_sriov_1_port:
     type: OS::Neutron::Port
     properties:
-      network_id: { get_param: sriov_net_id }
+      network: { get_param: sriov_net }
       fixed_ips:
-        - subnet_id: { get_param: sriov_subnet_id }
+        - subnet: { get_param: sriov_subnet }
       security_groups: [{ get_resource: server_security_group }]
       binding:vnic_type: 'direct'
 
   server1_sriov_2_port:
     type: OS::Neutron::Port
     properties:
-      network_id: { get_param: sriov_net_id_2 }
+      network: { get_param: sriov_net_2 }
       fixed_ips:
-        - subnet_id: { get_param: sriov_subnet_id_2 }
+        - subnet: { get_param: sriov_subnet_2 }
       security_groups: [{ get_resource: server_security_group }]
       binding:vnic_type: 'direct'
 

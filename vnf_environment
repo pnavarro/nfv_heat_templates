@@ -2,11 +2,11 @@ parameters:
   key_name: mypublickey
   image: centos7
   flavor: m1.medium.sriov
-  public_net_id: 262364b0-e388-4957-9103-002f87fa79dc
-  private_net_id: d06999ba-460b-4f51-93f3-19ea659b82db
-  private_subnet_id: cc048d74-3a50-4df5-a71b-c58d28496a62
-  sriov_net_id: 8099adcd-fec9-48a9-a353-30abc8bffea2
-  sriov_net_id_2: 6965d664-1aab-43d3-a306-562fc2e1da92
-  sriov_subnet_id: 15895551-7be9-47e6-bc86-4fa218a1bd2f
-  sriov_subnet_id_2: 04928d8c-c123-4293-8c1f-5db76e12be3d
+  public_net: 'public'
+  private_net: 'private'
+  private_subnet: 'private_subnet'
+  sriov_net: 'sriov_net'
+  sriov_subnet: 'sriov_subnet'
+  sriov_net: 'sriov_net'
+  sriov_subnet: 'sriov_subnet'
   instance_name: vnf
