@@ -7,6 +7,6 @@ parameters:
   private_subnet: 'private_subnet'
   sriov_net: 'sriov_net'
   sriov_subnet: 'sriov_subnet'
-  sriov_net: 'sriov_net'
-  sriov_subnet: 'sriov_subnet'
+  sriov_net_2: 'sriov_net'
+  sriov_subnet_2: 'sriov_subnet'
   instance_name: receiver
