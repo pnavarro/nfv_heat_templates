@@ -25,12 +25,14 @@ parameters:
     type: string
     description: >
       ID of public network for which floating IP addresses will be allocated
-  private_net:
+  private_net_name:
     type: string
-    description: name of private network into which servers get deployed
-  private_subnet:
+    description: Name of private network to be created
+    default: 'hello_world_private_net'
+  private_net_cidr:
     type: string
-    description: name of private sub network into which servers get deployed
+    description: Private network address (CIDR notation)
+    default: '192.168.0.0/24'
   sriov_net:
     type: string
     description: name of sriov network into which servers get deployed
@@ -45,6 +47,25 @@ parameters:
     description: name of sriov sub network into which servers get deployed
 
 resources:
+  private_net:
+    type: OS::Neutron::Net
+    properties:
+      name: { get_param: private_net_name }
+  private_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: private_net }
+      cidr: { get_param: private_net_cidr }
+  router:
+    type: OS::Neutron::Router
+    properties:
+      external_gateway_info:
+        network: { get_param: public_net }
+  router_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: router }
+      subnet_id: { get_resource: private_subnet }
   server1:
     type: OS::Nova::Server
     properties:
