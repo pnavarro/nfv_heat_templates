@@ -3,6 +3,8 @@ parameters:
   image: centos7
   flavor: m1.medium.sriov
   public_net: 'public'
+  private_net: 'private'
+  private_subnet: 'private_subnet'
   sriov_net: 'sriov_net'
   sriov_subnet: 'sriov_subnet'
   sriov_net_2: 'sriov_net'
