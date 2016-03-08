@@ -1,0 +1,25 @@
+heat_template_version: 2013-05-23
+
+description: >
+  HOT templates that creates a SRIOV provider network
+
+parameters:
+  vlan_segmentation_id:
+    type: string
+    description: The vlan provider network
+
+resources:
+  physnet_sriov:
+    type: OS::Neutron::ProviderNet
+    properties:
+      name: 'sriov_net_2'
+      network_type: 'vlan'
+      segmentation_id: { get_param: vlan_segmentation_id }
+      physical_network: 'physnet_sriov'
+  physnet_sriov_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      name: 'sriov_subnet_2'
+      network_id: { get_resource: physnet_sriov }
+      cidr: '10.0.6.0/24'
+outputs:
