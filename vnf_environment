@@ -1,5 +1,5 @@
 parameters:
-  key_name: mypublickey
+  key_name: rhel-key
   image: centos7
   flavor: m1.medium.sriov
   public_net: 'public'
