@@ -94,9 +94,3 @@ resources:
           protocol: icmp
 
 outputs:
-  transmitter_port_MAC:
-    description: the MAC of the transmitter
-    value: { get_attr: [ server1_sriov_1_port, mac_address ] }
-  receiver_port_MAC:
-    description: the MAC of the receiver port
-    value: { get_attr: [ server1_sriov_2_port, mac_address ] }
