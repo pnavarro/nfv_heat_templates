@@ -108,9 +108,9 @@ resources:
   server1_sriov_2_port:
     type: OS::Neutron::Port
     properties:
-      network: { get_param: sriov_net }
+      network: { get_param: sriov_net_2 }
       fixed_ips:
-        - subnet: { get_param: sriov_subnet }
+        - subnet: { get_param: sriov_subnet_2 }
       security_groups: [{ get_resource: server_security_group }]
       binding:vnic_type: 'direct'
 
