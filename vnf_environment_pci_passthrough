@@ -1,0 +1,8 @@
+parameters:
+  key_name: mypublickey
+  image: centos7
+  flavor: m1.medium.sriov.pci
+  public_net: 'public'
+  private_net: 'private'
+  private_subnet: 'private_subnet'
+  instance_name: vnf
