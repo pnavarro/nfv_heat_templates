@@ -1,7 +1,7 @@
 parameters:
-  key_name: rhel-key
+  key_name: openstack-key
   image: centos7
-  flavor: m1.medium.sriov
+  flavor: m1.medium.nfv
   public_net: 'public'
   private_net: 'private'
   private_subnet: 'private_subnet'
