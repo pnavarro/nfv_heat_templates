@@ -6,3 +6,4 @@ parameters:
   private_net: 'private'
   private_subnet: 'private_subnet'
   instance_name: 'hello_world_dpdk'
+  vlan_segmentation_id: 2151

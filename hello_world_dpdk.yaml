@@ -31,6 +31,11 @@ parameters:
   private_subnet:
     type: string
     description: ID of private subnet network into which servers get deployed
+  vlan_segmentation_id:
+    type: string
+    description: VLAN for the network
+
+
 
 resources:
   physnet_sriov:
